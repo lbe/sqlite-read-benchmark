@@ -2,6 +2,18 @@
 
 This project benchmarks read performance of various Go SQLite drivers comparing raw vs prepared statements.
 
+I created this project after discovering in cpu profiles that [modernc.org/sqlite](https://modernc.org/sqlite)   
+was apparently re-preparing already prepared statements. The of this benchmark support this observation.
+I have subsequently found an issue - [Optimize prepared statements?](https://gitlab.com/cznic/sqlite/-/issues?sort=created_date&state=opened&search=prepared&first_page_size=20&show=eyJpaWQiOiIyMzYiLCJmdWxsX3BhdGgiOiJjem5pYy9zcWxpdGUiLCJpZCI6MTc3OTgwMjkzfQ%3D%3D)
+reporting this same behavior.
+
+I have replaced the [modernc.org/sqlite](https://modernc.org/sqlite) with [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3)  
+in my application in order to maintain my CGO free goal. The benchmark indicated that would improve performance by a factor of 5+. In the actual
+application, it resulted in reducing the runtime of a long process from 33 minutes to 1 minute.
+
+Please note that as with all benchmrks, the results are only as indicative as the benchmark matches your actual use case. 
+The only way to be sure that the results are applicable to your case is to benchmark your case!
+
 ## Supported Drivers
 
 - [mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) - CGO-based driver
@@ -114,22 +126,56 @@ CREATE TABLE folder_paths (
 ## Example Output
 
 ```
+SQLite Driver Benchmark Suite
+==============================
+Database: benchmark.db
+Reads: 100000
+Goroutines: 22
+
+
 === mattn/go-sqlite3 ===
   Running raw benchmark...
-  raw (8 goroutines): 100000 reads in 1.234s = 81037 reads/sec
+  raw (22 goroutines): 100000 reads in 4.198395945s = 23819 reads/sec
   Running prepared benchmark...
-  prepared (8 goroutines): 100000 reads in 0.987s = 101317 reads/sec
+  prepared (22 goroutines): 100000 reads in 2.319155183s = 43119 reads/sec
+✓ mattn/go-sqlite3 completed
 
 === modernc.org/sqlite ===
   Running raw benchmark...
-  raw (8 goroutines): 100000 reads in 1.456s = 68681 reads/sec
+  raw (22 goroutines): 100000 reads in 4.37563765s = 22854 reads/sec
   Running prepared benchmark...
-  prepared (8 goroutines): 100000 reads in 1.123s = 89047 reads/sec
+  prepared (22 goroutines): 100000 reads in 4.154677353s = 24069 reads/sec
+✓ modernc.org/sqlite completed
+
+=== github.com/ncruces/go-sqlite3 ===
+  Running raw benchmark...
+  raw (22 goroutines): 100000 reads in 713.712971ms = 140112 reads/sec
+  Running prepared benchmark...
+  prepared (22 goroutines): 100000 reads in 626.007348ms = 159743 reads/sec
+✓ github.com/ncruces/go-sqlite3 completed
+
+=== crawshaw.io/sqlite ===
+  Running raw benchmark...
+  raw (22 goroutines): 100000 reads in 3.376629975s = 29615 reads/sec
+  Running prepared benchmark...
+  prepared (22 goroutines): 100000 reads in 403.347256ms = 247925 reads/sec
+✓ crawshaw.io/sqlite completed
+
+=== zombiezen.com/go/sqlite ===
+  Running raw benchmark...
+  raw (22 goroutines): 100000 reads in 14.656310718s = 6823 reads/sec
+  Running prepared benchmark...
+  prepared (22 goroutines): 100000 reads in 2.482263816s = 40286 reads/sec
+✓ zombiezen.com/go/sqlite completed
+
+=== github.com/glebarez/sqlite ===
+  Running raw benchmark...
+  raw (22 goroutines): 100000 reads in 4.924050485s = 20308 reads/sec
+  Running prepared benchmark...
+  prepared (22 goroutines): 100000 reads in 6.02162578s = 16607 reads/sec
+✓ github.com/glebarez/sqlite completed
+
+==============================
+Benchmark complete!
 ```
 
-## Notes
-
-- The CGO-based drivers (mattn, crawshaw) generally offer the best performance
-- Pure Go drivers provide better portability (no C compiler required)
-- Prepared statements typically show 10-30% performance improvement
-- File cache warmup is crucial for accurate benchmark results
