@@ -2,16 +2,14 @@
 
 This project benchmarks read performance of various Go SQLite drivers comparing raw vs prepared statements.
 
-I created this project after discovering in cpu profiles that [modernc.org/sqlite](https://modernc.org/sqlite)   
-was apparently re-preparing already prepared statements. The of this benchmark support this observation.
+I created this project after discovering in cpu profiles that [modernc.org/sqlite](https://modernc.org/sqlite) was apparently re-preparing already prepared statements. The of this benchmark support this observation.
 I have subsequently found an issue - [Optimize prepared statements?](https://gitlab.com/cznic/sqlite/-/issues?sort=created_date&state=opened&search=prepared&first_page_size=20&show=eyJpaWQiOiIyMzYiLCJmdWxsX3BhdGgiOiJjem5pYy9zcWxpdGUiLCJpZCI6MTc3OTgwMjkzfQ%3D%3D)
 reporting this same behavior.
 
-I have replaced the [modernc.org/sqlite](https://modernc.org/sqlite) with [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3)  
-in my application in order to maintain my CGO free goal. The benchmark indicated that would improve performance by a factor of 5+. In the actual
+I have replaced the [modernc.org/sqlite](https://modernc.org/sqlite) with [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3) in my application in order to maintain my CGO free goal. The benchmark indicated that would improve performance by a factor of 5+. In the actual
 application, it resulted in reducing the runtime of a long process from 33 minutes to 1 minute.
 
-Please note that as with all benchmrks, the results are only as indicative as the benchmark matches your actual use case. 
+Please note that as with all benchmrks, the results are only as indicative as the benchmark matches your actual use case.
 The only way to be sure that the results are applicable to your case is to benchmark your case!
 
 ## Supported Drivers
@@ -26,6 +24,7 @@ The only way to be sure that the results are applicable to your case is to bench
 ## Project Structure
 
 Each driver is in its own directory as a **completely independent Go module**. This is necessary because:
+
 1. CGO-based drivers (mattn, crawshaw) embed SQLite C code which causes symbol conflicts
 2. Some drivers register themselves with the same `database/sql` driver name
 
@@ -58,6 +57,7 @@ go run main.go -db benchmark.db -entries 6000000
 ```
 
 This will create binaries in `./bin/`:
+
 - `benchmark_mattn`
 - `benchmark_modernc`
 - `benchmark_ncruces`
@@ -100,6 +100,7 @@ go run main.go -db <path> -entries <count> [-skip-init] [-skip-warmup] [-warmup-
 ### Benchmark Options
 
 Each benchmark binary accepts:
+
 1. Database path
 2. Number of reads (e.g., 100000)
 3. Number of goroutines (e.g., 8)
@@ -178,4 +179,3 @@ Goroutines: 22
 ==============================
 Benchmark complete!
 ```
-
