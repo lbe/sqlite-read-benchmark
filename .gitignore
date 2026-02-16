@@ -134,4 +134,6 @@ $RECYCLE.BIN/
 bin/*
 
 # exclude database files
-benchmark.*
+benchmark.db
+benchmark.shm
+benchmark.wal
