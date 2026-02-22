@@ -1,5 +1,5 @@
 module sqlite-benchmark
 
-go 1.22
+go 1.26
 
-require github.com/mattn/go-sqlite3 v1.14.24
+require github.com/mattn/go-sqlite3 v1.14.34

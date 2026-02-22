@@ -6,6 +6,24 @@ I created this project after discovering in cpu profiles that [modernc.org/sqlit
 I have subsequently found an issue - [Optimize prepared statements?](https://gitlab.com/cznic/sqlite/-/issues?sort=created_date&state=opened&search=prepared&first_page_size=20&show=eyJpaWQiOiIyMzYiLCJmdWxsX3BhdGgiOiJjem5pYy9zcWxpdGUiLCJpZCI6MTc3OTgwMjkzfQ%3D%3D)
 reporting this same behavior.
 
+---
+
+**UPDATE:** Since publishing the original version of this benchmark, I have discovered that this benchmark did not
+use the latest version of all drivers.  Namely in the case of [modernc.org/sqlite](https://modernc.org/sqlite) it used version
+1.35.0.  I also discovered that several days after my original publishing of this bechnmark that issue [Optimize prepared statements?](https://gitlab.com/cznic/sqlite/-/issues?sort=created_date&state=opened&search=prepared&first_page_size=20&show=eyJpaWQiOiIyMzYiLCJmdWxsX3BhdGgiOiJjem5pYy9zcWxpdGUiLCJpZCI6MTc3OTgwMjkzfQ%3D%3D) has been closed with a message that
+this defect was addressed in a commit made on December 7, 2025.  I have updated all dependencies in all of the benchmark code
+to the very latest versions available as of February 22, 2026. The current version 1.46.1 of [modernc.org/sqlite](https://modernc.org/sqlite) now shows the expected behavior that prepared are faster than raw, 39% faster in this benchmark.  Thank you to 
+the modernc developer(s) for addressing this.
+
+In this specific benchmark, the [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3) driver still
+performs 314% faster for my needs than [modernc.org/sqlite](https://modernc.org/sqlite).
+
+Additionally, I updated the go version to 1.26.0. As such the benchmarks now reflect the performance improvements 
+made in this verion of CGo.
+
+---
+
+
 I have replaced the [modernc.org/sqlite](https://modernc.org/sqlite) with [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3) in my application in order to maintain my CGO free goal. The benchmark indicated that would improve performance by a factor of 5+. In the actual
 application, it resulted in reducing the runtime of a long process from 33 minutes to 1 minute.
 
@@ -126,6 +144,62 @@ CREATE TABLE folder_paths (
 
 ## Example Output
 
+**Update:** February 22, 2026
+```
+SQLite Driver Benchmark Suite
+==============================
+Database: benchmark.db
+Reads: 100000
+Goroutines: 22
+
+
+=== mattn/go-sqlite3 ===
+  Running raw benchmark...
+  raw (22 goroutines): 100000 reads in 4.317282444s = 23163 reads/sec
+  Running prepared benchmark...
+  prepared (22 goroutines): 100000 reads in 2.277671663s = 43904 reads/sec
+✓ mattn/go-sqlite3 completed
+
+=== modernc.org/sqlite ===
+  Running raw benchmark...
+  raw (22 goroutines): 100000 reads in 2.585778403s = 38673 reads/sec
+  Running prepared benchmark...
+  prepared (22 goroutines): 100000 reads in 1.865742162s = 53598 reads/sec
+✓ modernc.org/sqlite completed
+
+=== github.com/ncruces/go-sqlite3 ===
+  Running raw benchmark...
+  raw (22 goroutines): 100000 reads in 679.047214ms = 147265 reads/sec
+  Running prepared benchmark...
+  prepared (22 goroutines): 100000 reads in 592.568508ms = 168757 reads/sec
+✓ github.com/ncruces/go-sqlite3 completed
+
+=== crawshaw.io/sqlite ===
+  Running raw benchmark...
+  raw (22 goroutines): 100000 reads in 3.393184652s = 29471 reads/sec
+  Running prepared benchmark...
+  prepared (22 goroutines): 100000 reads in 468.828425ms = 213298 reads/sec
+✓ crawshaw.io/sqlite completed
+
+=== zombiezen.com/go/sqlite ===
+  Running raw benchmark...
+  raw (22 goroutines): 100000 reads in 15.38200088s = 6501 reads/sec
+  Running prepared benchmark...
+  prepared (22 goroutines): 100000 reads in 1.682900317s = 59421 reads/sec
+✓ zombiezen.com/go/sqlite completed
+
+=== github.com/glebarez/sqlite ===
+  Running raw benchmark...
+  raw (22 goroutines): 100000 reads in 4.927667012s = 20294 reads/sec
+  Running prepared benchmark...
+  prepared (22 goroutines): 100000 reads in 5.210097329s = 19193 reads/sec
+✓ github.com/glebarez/sqlite completed
+
+==============================
+Benchmark complete!
+```
+
+**Original Results:**
 ```
 SQLite Driver Benchmark Suite
 ==============================

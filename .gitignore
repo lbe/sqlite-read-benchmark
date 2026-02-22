@@ -137,3 +137,11 @@ bin/*
 benchmark.db
 benchmark.shm
 benchmark.wal
+
+# exclude binaries
+crawshaw/crawshaw
+glebarez/glebarez
+mattn/mattn
+modernc/modernc
+ncruces/ncruces
+zombiezen/zombiezen
